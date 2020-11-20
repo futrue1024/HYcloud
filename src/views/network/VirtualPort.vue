@@ -54,11 +54,15 @@ const columns = [
   },
   {
     title: 'VLANID',
-    dataIndex: 'VLANID'
+    dataIndex: 'vdSwitchId'
   },
   {
     title: '连接方式',
     dataIndex: '连接方式'
+  },
+  {
+    title: '端口',
+    dataIndex: '端口'
   }
 ]
 const rowSelection = {
@@ -117,7 +121,7 @@ export default {
         sortType: this.sorter.order
       }
       this.$http
-        .post('/Info/cluster', queryJson)
+        .post('/Info/vdportgroup', queryJson)
         .then((resJson) => {
           this.loading = false
           this.data = resJson.result.datas

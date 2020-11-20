@@ -4,7 +4,7 @@
       <rightButton
         type="primary"
         icon="plus"
-        :click="addData"
+        :click="selectData"
         code="role-add">添加
       </rightButton>
     </div>
@@ -33,16 +33,20 @@ import rightButton from '@/components/tools/RightButton'
 
 const columns = [
   {
-    title: '品牌',
-    dataIndex: 'name'
+    title: '状态',
+    dataIndex: 'state'
   },
   {
     title: '型号',
-    dataIndex: '型号'
+    dataIndex: 'type'
   },
   {
-    title: '连接方式',
-    dataIndex: '连接方式'
+    title: '使用容量',
+    dataIndex: 'capacityGB'
+  },
+  {
+    title: '剩余容量',
+    dataIndex: 'freeSpaceGB'
   }
 ]
 const rowSelection = {
@@ -101,7 +105,7 @@ export default {
         sortType: this.sorter.order
       }
       this.$http
-        .post('/Info/cluster', queryJson)
+        .post('/Info/datastore', queryJson)
         .then((resJson) => {
           this.loading = false
           this.data = resJson.result.datas
@@ -126,7 +130,7 @@ export default {
           this.loading = false
         })
     },
-    addData () {
+    selectData () {
       this.$refs.editForm.add()
     }
   }

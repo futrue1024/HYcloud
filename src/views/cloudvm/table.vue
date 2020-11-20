@@ -1,60 +1,83 @@
 <template>
   <a-modal
     :title="showTitle"
-    width="50%"
+    width="60%"
+    height="60%"
     :visible="visible"
     :confirmLoading="confirmLoading"
     @cancel="handleCancel"
   >
     <template slot="footer">
-      <a-button key="back" @click="handleCancel">
+      <a-button key="cancel" @click="handleCancel">
         取消
       </a-button>
+      <a-button key="back" @click="handleCancel">
+        上一步
+      </a-button>
       <a-button key="submit" type="primary" :loading="loading" @click="handleOk">
-        添加
+        完成
       </a-button>
     </template>
-    <a-spin :spinning="confirmLoading" class="from">
-      <a-form :form="form" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }" style="margin-left: 60px">
-        <a-form-item label="选择存储设备">
-          <a-select
-            v-decorator="['存储设备',{ rules: [{ required: true, message: '请选择存储设备' }] },]"
-            placeholder="数据过多可直接搜索"
-            @change="handleSelectChange"
-            show-search
-            option-filter-prop="children"
-            :filter-option="filterOption"
-          >
-            <a-select-option v-for="k in selectData" :value="k.value" :key="k.value">
-              {{ k.text }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-    </a-spin>
+    <a-table
+      ref="table"
+      :columns="columns"
+      :rowKey="row => row.id"
+      :dataSource="data"
+      :row-selection="rowSelection"
+      :bordered="true"
+      size="small"
+    >
+    </a-table>
   </a-modal>
 </template>
 
 <script>
-const selectData = [
-  { value: '创建一', text: '创建一' },
-  { value: '创建二', text: '创建二' },
-  { value: '创建三', text: '创建三' },
-  { value: '创建四', text: '创建四' },
-  { value: '创建五', text: '创建五' },
-  { value: '创建六', text: '创建六' },
-  { value: '创建七', text: '创建七' }
+
+const columns = [
+  {
+    title: '虚拟机名称',
+    dataIndex: 'name'
+  },
+  {
+    title: '集群',
+    dataIndex: '集群'
+  },
+  {
+    title: '主机',
+    dataIndex: '主机'
+  },
+  {
+    title: '数据存储',
+    dataIndex: '数据存储'
+  },
+  {
+    title: '网络',
+    dataIndex: '网络'
+  }
 ]
+const rowSelection = {
+  onSelect: (record, selected, selectedRows) => {
+    console.log(record)
+    console.log(selectedRows)
+  }
+}
 export default {
   props: {
     afterSubmit: {
       type: Function,
+      default: null
+    },
+    dataSource: {
+      type: Object,
       default: null
     }
   },
   data () {
     return {
       showTitle: '',
+      columns,
+      rowSelection,
+      data: [],
       form: this.$form.createForm(this),
       labelCol: { xs: { span: 24 }, sm: { span: 7 } },
       wrapperCol: { xs: { span: 24 }, sm: { span: 13 } },
@@ -65,21 +88,20 @@ export default {
       formFields: {},
       entity: {},
       value: 1,
-      hasValue: 1,
-      selectData
+      hasValue: 1
     }
+  },
+  mounted () {
+    this.data.push(this.dataSource)
   },
   methods: {
     add () {
-      this.showTitle = '添加存储设备'
-      this.isAdd = true
-      this.entity = {}
+      this.showTitle = '选择创建云虚拟机类型'
       this.visible = true
       this.form.resetFields()
     },
     handleOk () {
       this.form.validateFields((errors, values) => {
-        console.log(values)
         // 校验成功
         if (!errors) {
           const postUrl = this.isAdd ? '/role/create' : '/role/edit'
@@ -101,14 +123,24 @@ export default {
     handleCancel () {
       this.visible = false
     },
-    handleSelectChange (value) {
-      console.log(`selected ${value}`)
+    onHaChange (e) {
+      console.log(e.target.value)
     },
-    filterOption (input, option) {
-      return (
-        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
-      )
+    onDrsChange (e) {
+      console.log(e.target.value)
     }
   }
 }
 </script>
+<style lang="less" scoped>
+.radio {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+
+  span {
+    margin-right: 240px;
+    white-space: nowrap;
+  }
+}
+</style>

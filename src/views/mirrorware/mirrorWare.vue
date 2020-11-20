@@ -2,11 +2,11 @@
   <a-card :bordered="false" class="table-operator-layout">
     <div class="table-operator">
       <a-tabs default-active-key="1" @change="callback">
-        <a-tab-pane key="1" tab="分布式交换机">
-          <DistributedSwitch/>
+        <a-tab-pane key="1" tab="镜像仓库">
+          <mirror/>
         </a-tab-pane>
-        <a-tab-pane key="2" tab="虚拟端口组" force-render>
-          <VirtualPort/>
+        <a-tab-pane key="2" tab="虚拟机模板" force-render>
+          <vm-template/>
         </a-tab-pane>
       </a-tabs>
     </div>
@@ -14,13 +14,13 @@
 </template>
 
 <script>
-import DistributedSwitch from './DistributedSwitch'
-import VirtualPort from './VirtualPort'
+import Mirror from './mirror.vue'
+import vmTemplate from './vmTemplate.vue'
 
 export default {
   components: {
-    DistributedSwitch,
-    VirtualPort
+    Mirror,
+    vmTemplate
   },
   data () {
     return {}

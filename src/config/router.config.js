@@ -56,7 +56,7 @@ export const asyncRouterMap = [
           {
             path: '/mirror',
             name: 'mirror',
-            component: () => import('@/views/mirrorware/mirror.vue'),
+            component: () => import('@/views/mirrorware/mirrorWare.vue'),
             meta: { title: '镜像仓库', keepAlive: true, permission: ['user'] }
           }
         ]
@@ -70,8 +70,8 @@ export const asyncRouterMap = [
         meta: { title: '存储资源', keepAlive: true, icon: 'save', permission: ['user'] },
         children: [
           {
-            path: '/storage',
-            name: 'storage',
+            path: '/storages',
+            name: 'storages',
             component: () => import('@/views/storage/storage.vue'),
             meta: { title: '后端存储资源', keepAlive: true, permission: ['user'] }
           }
@@ -113,7 +113,7 @@ export const asyncRouterMap = [
             meta: { title: '对接vCenter服务', keepAlive: true, permission: ['user'] }
           }
         ]
-      }
+      },
       // dashboard
       // {
       //   path: 'dashboard',
@@ -148,35 +148,34 @@ export const asyncRouterMap = [
       //     }
       //   ]
       // }
-
       // forms
-      // {
-      //   path: '/form',
-      //   redirect: '/form/base-form',
-      //   component: PageView,
-      //   meta: { title: '表单页面', icon: 'form', permission: ['form'] },
-      //   children: [
-      //     {
-      //       path: '/form/base-form',
-      //       name: 'BaseForm',
-      //       component: () => import('@/views/form/BasicForm'),
-      //       meta: { title: '基础表单', keepAlive: true, permission: ['form'] }
-      //     },
-      //     {
-      //       path: '/form/step-form',
-      //       name: 'StepForm',
-      //       component: () => import('@/views/form/stepForm/StepForm'),
-      //       meta: { title: '分步表单', keepAlive: true, permission: ['form'] }
-      //     },
-      //     {
-      //       path: '/form/advanced-form',
-      //       name: 'AdvanceForm',
-      //       component: () => import('@/views/form/advancedForm/AdvancedForm'),
-      //       meta: { title: '高级表单', keepAlive: true, permission: ['form'] }
-      //     }
-      //   ]
-      // },
-      //
+      {
+        path: '/form',
+        redirect: '/form/base-form',
+        component: PageView,
+        meta: { title: '表单页面', icon: 'form', permission: ['form'] },
+        children: [
+          {
+            path: '/form/base-form',
+            name: 'BaseForm',
+            component: () => import('@/views/form/BasicForm'),
+            meta: { title: '基础表单', keepAlive: true, permission: ['form'] }
+          },
+          {
+            path: '/form/step-form',
+            name: 'StepForm',
+            component: () => import('@/views/form/stepForm/StepForm'),
+            meta: { title: '分步表单', keepAlive: true, permission: ['form'] }
+          },
+          {
+            path: '/form/advanced-form',
+            name: 'AdvanceForm',
+            component: () => import('@/views/form/advancedForm/AdvancedForm'),
+            meta: { title: '高级表单', keepAlive: true, permission: ['form'] }
+          }
+        ]
+      }
+
       // // list
       // {
       //   path: '/list',

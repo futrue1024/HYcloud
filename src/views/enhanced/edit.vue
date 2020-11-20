@@ -1,41 +1,58 @@
 <template>
   <a-modal
     :title="showTitle"
-    width="40%"
+    width="50%"
     :visible="visible"
     :confirmLoading="confirmLoading"
-    @ok="handleSubmit"
     @cancel="handleCancel"
   >
-    <a-spin :spinning="confirmLoading">
-      <a-form :form="form">
-        <a-form-item label="新建名称" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input autoSize v-decorator="['name', { rules: [{ required: true, message: '请输入名称' }] }]"/>
+    <template slot="footer">
+      <a-button key="back" @click="handleCancel">
+        取消
+      </a-button>
+      <a-button key="submit" type="primary" :loading="loading" @click="handleOk">
+        添加
+      </a-button>
+    </template>
+    <a-spin :spinning="confirmLoading" class="from">
+      <a-form :form="form" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }" style="margin-left: 60px">
+        <a-form-item label="名称">
+          <a-input
+            v-decorator="['名称', { rules: [{ required: true, message: '请输入名称' }] }]"
+          />
+        </a-form-item>
+        <a-form-item label="描述">
+          <a-input
+            v-decorator="['描述', { rules: [{ required: true, message: '请输入描述' }] }]"
+          />
+        </a-form-item>
+        <a-form-item label="传输区域">
+          <a-select
+            v-decorator="['传输区域',{ rules: [{ required: true, message: '请选择传输区域' }] },]"
+            placeholder="请选择传输区域"
+            @change="handleSelectChange"
+          >
+            <a-select-option value="区域1">
+              区域1
+            </a-select-option>
+            <a-select-option value="区域2">
+              区域2
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="复制模式">
+          <a-select
+            v-decorator="['复制模式',{ rules: [{ required: true, message: '请选择复制模式' }] },]"
+            placeholder="请选择复制模式"
+            @change="handleSelectChange"
+          >
+            <a-select-option value="单播">
+              单播
+            </a-select-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </a-spin>
-    <div class="drs-radio">
-      <span>vSphere DRS：</span>
-      <a-radio-group v-model="value" @change="onDrsChange">
-        <a-radio :value="1">
-          开启
-        </a-radio>
-        <a-radio :value="2">
-          关闭
-        </a-radio>
-      </a-radio-group>
-    </div>
-    <div class="ha-radio">
-      <span>vSphere HA：</span>
-      <a-radio-group v-model="value" @change="onHaChange">
-        <a-radio :value="3">
-          开启
-        </a-radio>
-        <a-radio :value="4">
-          关闭
-        </a-radio>
-      </a-radio-group>
-    </div>
   </a-modal>
 </template>
 
@@ -54,6 +71,7 @@ export default {
       labelCol: { xs: { span: 24 }, sm: { span: 7 } },
       wrapperCol: { xs: { span: 24 }, sm: { span: 13 } },
       visible: false,
+      loading: false,
       confirmLoading: false,
       isAdd: true,
       formFields: {},
@@ -64,33 +82,15 @@ export default {
   },
   methods: {
     add () {
-      this.showTitle = '新建集群'
+      this.showTitle = '创建逻辑交换机'
       this.isAdd = true
       this.entity = {}
       this.visible = true
       this.form.resetFields()
     },
-    edit (id) {
-      this.showTitle = '编辑角色'
-      this.isAdd = false
-      this.visible = true
-      this.$nextTick(() => {
-        this.formFields = this.form.getFieldsValue()
-        this.$http.get('/role/' + id, {}).then(resJson => {
-          this.entity = resJson.result
-          var setData = {}
-          Object.keys(this.formFields).forEach(item => {
-            setData[item] = this.entity[item]
-          })
-          this.form.setFieldsValue(setData)
-        })
-          .catch(err => {
-            this.$message.error('加载失败:' + err.response.data.message)
-          })
-      })
-    },
-    handleSubmit () {
+    handleOk () {
       this.form.validateFields((errors, values) => {
+        console.log(values)
         // 校验成功
         if (!errors) {
           const postUrl = this.isAdd ? '/role/create' : '/role/edit'
@@ -112,26 +112,14 @@ export default {
     handleCancel () {
       this.visible = false
     },
-    onHaChange (e) {
-      console.log(e.target.value)
-    },
-    onDrsChange (e) {
-      console.log(e.target.value)
+    handleSelectChange (value) {
+      console.log(`selected ${value}`)
     }
   }
 }
 </script>
 <style lang="less" scoped>
-.drs-radio {
-  text-align: center;
-  span{
-    margin-right: 240px;
-  }
-}
-.ha-radio {
-  text-align: center;
-  span{
-    margin-right: 230px;
-  }
+.from {
+
 }
 </style>

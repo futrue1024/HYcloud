@@ -117,6 +117,7 @@ export default {
       this.visible = true
       this.$nextTick(() => {
         this.formFields = this.form.getFieldsValue()
+        console.log(this.form.getFieldValue())
         this.getMenuTree()
         this.$http.get('/menu/' + id, { }).then(resJson => {
           this.entity = resJson.result

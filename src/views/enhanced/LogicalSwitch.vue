@@ -10,7 +10,7 @@
       <rightButton
         type="danger"
         icon="delete"
-        :click="addData"
+        :click="LogicalSwitchDelete"
         code="role-add">删除
       </rightButton>
       <rightButton
@@ -26,6 +26,7 @@
         code="role-add">管理虚拟机
       </rightButton>
     </div>
+    <edit-form ref="editForm" :after-submit="getDataList"></edit-form>
     <div class="table">
       <a-table
         ref="table"
@@ -51,7 +52,7 @@ import rightButton from '@/components/tools/RightButton'
 const columns = [
   {
     title: '逻辑交换机ID',
-    dataIndex: 'name'
+    dataIndex: '逻辑交换机ID'
   },
   {
     title: 'VXLAN',
@@ -157,6 +158,25 @@ export default {
     },
     addData () {
       this.$refs.editForm.add()
+    },
+    LogicalSwitchDelete () {
+      const me = this
+      this.$confirm({
+        title: '确认要删除选中的主机吗?',
+        onOk () {
+          me.loading = true
+          console.log(me.selectedRowKeys)
+          me.$http.post('/category/delete', me.selectedRowKeys).then(resJson => {
+            me.loading = false
+            me.$message.success('删除成功!')
+            me.getDataList()
+          })
+            .catch(err => {
+              me.$message.error('删除失败:' + err.response.data.message)
+              me.loading = false
+            })
+        }
+      })
     }
   }
 }

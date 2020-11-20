@@ -9,38 +9,19 @@
   >
     <a-spin :spinning="confirmLoading">
       <a-form :form="form">
-        <a-form-item label="新建名称" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input autoSize v-decorator="['name', { rules: [{ required: true, message: '请输入名称' }] }]"/>
+        <a-form-item label="重命名" :labelCol="labelCol" :wrapperCol="wrapperCol">
+          <a-input
+            autoSize
+            v-decorator="['name', { rules: [{ required: true, message: '请输入新名称' }] }]"
+            placeholder="请输入新名称"
+          />
         </a-form-item>
       </a-form>
     </a-spin>
-    <div class="radio" style="padding-right: 38px">
-      <span style="">vSphere DRS：</span>
-      <!--      <a-radio-group v-model="value1" :options="drsOptions" :default-value="value1" @change="onDrsChange"/>-->
-      <a-switch checked-children="开" un-checked-children="关" default-checked />
-      <br/>
-      <span>vSphere HA：</span>
-      <a-switch checked-children="开" un-checked-children="关" default-checked style="margin-left: 9px"/>
-      <!--      <a-radio-group-->
-      <!--        v-model="value2"-->
-      <!--        :default-value="value2"-->
-      <!--        :options="haOptions"-->
-      <!--        @change="onHaChange"-->
-      <!--        style="padding-left: 9px"/>-->
-      <br/>
-    </div>
   </a-modal>
 </template>
 
 <script>
-const drsOptions = [
-  { label: '开启', value: 1 },
-  { label: '关闭', value: 0 }
-]
-const haOptions = [
-  { label: '开启', value: 1 },
-  { label: '关闭', value: 0 }
-]
 export default {
   props: {
     afterSubmit: {
@@ -50,8 +31,6 @@ export default {
   },
   data () {
     return {
-      drsOptions,
-      haOptions,
       showTitle: '',
       form: this.$form.createForm(this),
       labelCol: { xs: { span: 24 }, sm: { span: 7 } },
@@ -60,17 +39,14 @@ export default {
       confirmLoading: false,
       isAdd: true,
       formFields: {},
-      entity: {},
-      value1: 1,
-      value2: 1
+      entity: {}
     }
   },
   methods: {
     add () {
-      this.showTitle = '新建集群'
-      this.isAdd = true
-      this.entity = {}
       this.visible = true
+      this.showTitle = '新建集群'
+      this.entity = {}
       this.form.resetFields()
     },
     edit (id) {
@@ -114,12 +90,6 @@ export default {
     },
     handleCancel () {
       this.visible = false
-    },
-    onHaChange (e) {
-      console.log('radio1 checked', e.target.value)
-    },
-    onDrsChange (e) {
-      console.log('radio1 checked', e.target.value)
     }
   }
 }

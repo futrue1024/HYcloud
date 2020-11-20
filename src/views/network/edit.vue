@@ -1,46 +1,83 @@
 <template>
   <a-modal
     :title="showTitle"
-    width="40%"
+    width="50%"
     :visible="visible"
     :confirmLoading="confirmLoading"
-    @ok="handleSubmit"
     @cancel="handleCancel"
   >
-    <a-spin :spinning="confirmLoading">
-      <a-form :form="form">
-        <a-form-item label="新建名称" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input autoSize v-decorator="['name', { rules: [{ required: true, message: '请输入名称' }] }]"/>
+    <template slot="footer">
+      <a-button key="back" @click="handleCancel">
+        取消
+      </a-button>
+      <a-button key="submit" type="primary" :loading="loading" @click="handleOk">
+        下一步
+      </a-button>
+    </template>
+    <TableFrom ref="tableFrom" :after-submit="afterSubmit" :data-sources="entity"></TableFrom>
+    <a-spin :spinning="confirmLoading" class="from">
+      <a-form :form="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 12 }" style="margin-left: 60px">
+        <a-form-item label="虚拟机名称">
+          <a-input
+            v-decorator="['虚拟机名称', { rules: [{ required: true, message: '请输入虚拟机名称' }] }]"
+            placeholder="请输入虚拟机名称"
+          />
+        </a-form-item>
+        <a-form-item label="所属分布式交换机">
+          <a-select
+            v-decorator="['所属分布式交换机',{ rules: [{ required: true, message: '所属分布式交换机' }] },]"
+            placeholder="所属分布式交换机"
+            @change="handleSelectChange"
+          >
+            <a-select-option v-for="(k,index) in name" :value="k" :key="index">
+              {{ k }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="Vlan">
+          <a-select
+            v-decorator="['Vlan',{ rules: [{ required: true, message: '请选择Vlan' }] },]"
+            placeholder="请选择Vlan"
+            @change="handleSelectChange"
+          >
+            <a-select-option value="Vlan1">
+              Vlan1
+            </a-select-option>
+            <a-select-option value="Vlan2">
+              Vlan2
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="Vlan类型">
+          <a-select
+            v-decorator="['Vlan类型',{ rules: [{ required: true, message: '请选择Vlan类型' }] },]"
+            placeholder="请选择Vlan类型"
+            @change="handleSelectChange"
+          >
+            <a-select-option value="类型一">
+              类型一
+            </a-select-option>
+            <a-select-option value="类型二">
+              类型二
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="VlanId">
+          <a-input
+            v-decorator="['VlanId', { rules: [{ required: true, message: '请输入描述' }] }]"
+            placeholder="请输入虚拟机名称"
+          />
         </a-form-item>
       </a-form>
     </a-spin>
-    <div class="drs-radio">
-      <span>vSphere DRS：</span>
-      <a-radio-group v-model="value" @change="onDrsChange">
-        <a-radio :value="1">
-          开启
-        </a-radio>
-        <a-radio :value="2">
-          关闭
-        </a-radio>
-      </a-radio-group>
-    </div>
-    <div class="ha-radio">
-      <span>vSphere HA：</span>
-      <a-radio-group v-model="value" @change="onHaChange">
-        <a-radio :value="3">
-          开启
-        </a-radio>
-        <a-radio :value="4">
-          关闭
-        </a-radio>
-      </a-radio-group>
-    </div>
   </a-modal>
 </template>
 
 <script>
+import TableFrom from './table.vue'
+
 export default {
+  components: { TableFrom },
   props: {
     afterSubmit: {
       type: Function,
@@ -54,84 +91,62 @@ export default {
       labelCol: { xs: { span: 24 }, sm: { span: 7 } },
       wrapperCol: { xs: { span: 24 }, sm: { span: 13 } },
       visible: false,
+      loading: false,
       confirmLoading: false,
       isAdd: true,
       formFields: {},
       entity: {},
       value: 1,
-      hasValue: 1
+      hasValue: 1,
+      pagination: {
+        current: 1,
+        pageSize: 10,
+        showSizeChanger: true
+      },
+      sorter: { field: 'Id', order: 'ASC' },
+      name: []
     }
+  },
+  mounted () {
+    const queryJson = {
+      pageIndex: this.pagination.current,
+      pageSize: this.pagination.pageSize,
+      sortField: this.sorter.field,
+      sortType: this.sorter.order
+    }
+    this.$http
+      .post('/Info/vdswitch', queryJson)
+      .then((resJson) => {
+        resJson.result.datas.map(item => this.name.push(item.name))
+        this.pagination = { ...this.pagination }
+      })
+      .catch((err) => {
+        this.$message.error('加载失败:' + err.response.message)
+      })
   },
   methods: {
     add () {
-      this.showTitle = '新建集群'
+      this.showTitle = '创建逻辑交换机'
       this.isAdd = true
       this.entity = {}
       this.visible = true
       this.form.resetFields()
     },
-    edit (id) {
-      this.showTitle = '编辑角色'
-      this.isAdd = false
-      this.visible = true
-      this.$nextTick(() => {
-        this.formFields = this.form.getFieldsValue()
-        this.$http.get('/role/' + id, {}).then(resJson => {
-          this.entity = resJson.result
-          var setData = {}
-          Object.keys(this.formFields).forEach(item => {
-            setData[item] = this.entity[item]
-          })
-          this.form.setFieldsValue(setData)
-        })
-          .catch(err => {
-            this.$message.error('加载失败:' + err.response.data.message)
-          })
-      })
-    },
-    handleSubmit () {
+    handleOk () {
       this.form.validateFields((errors, values) => {
-        // 校验成功
         if (!errors) {
-          const postUrl = this.isAdd ? '/role/create' : '/role/edit'
           this.entity = Object.assign(this.entity, this.form.getFieldsValue())
-          this.confirmLoading = true
-          this.$http.post(postUrl, this.entity).then(resJson => {
-            this.confirmLoading = false
-            this.$message.success('保存成功!')
-            this.afterSubmit()
-            this.visible = false
-          })
-            .catch(err => {
-              this.$message.error('保存失败:' + err.response.data.message)
-              this.confirmLoading = false
-            })
+          this.$refs.tableFrom.add()
+          console.log(this.entity)
         }
       })
     },
     handleCancel () {
       this.visible = false
     },
-    onHaChange (e) {
-      console.log(e.target.value)
-    },
-    onDrsChange (e) {
-      console.log(e.target.value)
+    handleSelectChange (value) {
+      console.log(`selected ${value}`)
     }
   }
 }
 </script>
-<style lang="less" scoped>
-.drs-radio {
-  text-align: center;
-  span{
-    margin-right: 240px;
-  }
-}
-.ha-radio {
-  text-align: center;
-  span{
-    margin-right: 230px;
-  }
-}
-</style>

@@ -9,8 +9,14 @@
       </rightButton>
       <rightButton
         type="primary"
+        icon="plus"
+        :click="stepAdd"
+        code="role-add">测试
+      </rightButton>
+      <rightButton
+        type="primary"
         icon="setting"
-        :click="addData"
+        :click="vmMigrate"
         code="role-add">云虚拟机迁移
       </rightButton>
       <a-dropdown>
@@ -54,15 +60,21 @@
           <a-icon type="down"/>
         </a-button>
       </a-dropdown>
+      <a-button type="primary" :disabled="!hasSelected" @click="start">
+        详情
+      </a-button>
     </div>
     <edit-form ref="editForm" :afterSubmit="getDataList"></edit-form>
+    <step-from ref="stepFrom" :afterSubmit="getDataList"></step-from>
+    <edit-table-item ref="editTableItem" :after-submit="getDataList" :dataItem="dataItem"></edit-table-item>
+    <vm-migrate ref="vmMigrate" :afterSubmit="getDataList"></vm-migrate>
     <div class="table">
       <a-table
         ref="table"
         :columns="columns"
         :rowKey="(row) => row.id"
         :dataSource="data"
-        :row-selection="rowSelection"
+        :row-selection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         :pagination="pagination"
         :loading="loading"
         :bordered="true"
@@ -76,12 +88,19 @@
 
 <script>
 import editForm from './edit.vue'
+import editTableItem from './editTableItem.vue'
+import vmMigrate from './vmMigrate.vue'
+import stepFrom from './stepfrom/stepfrom.vue'
 import rightButton from '@/components/tools/RightButton'
 
 const columns = [
   {
     title: '名称',
     dataIndex: 'name'
+  },
+  {
+    title: '状态',
+    dataIndex: 'state'
   },
   {
     title: '电源状态',
@@ -100,12 +119,6 @@ const columns = [
     dataIndex: 'vmHostId'
   }
 ]
-const rowSelection = {
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record)
-    console.log(selectedRows)
-  }
-}
 
 function toPercent (point) {
   let str = Number(point * 100).toFixed(2)
@@ -114,13 +127,14 @@ function toPercent (point) {
 }
 
 export default {
-  components: { rightButton, editForm },
+  components: { rightButton, editForm, vmMigrate, editTableItem, stepFrom },
   data () {
     return {
       toPercent,
       columns,
-      rowSelection,
+      selectedRowKeys: [],
       data: [],
+      dataItem: {},
       pagination: {
         current: 1,
         pageSize: 10,
@@ -132,6 +146,12 @@ export default {
       loading: false
     }
   },
+  computed: {
+    hasSelected () {
+      return this.selectedRowKeys.length > 0
+    }
+  },
+
   mounted () {
     this.getDataList()
   },
@@ -144,7 +164,7 @@ export default {
       console.log('click', e)
     },
     moreHandleMenuClick (e) {
-      console.log('click', e)
+      console.log('click', e.key)
     },
     handleChange (value) {
       console.log(value)
@@ -193,6 +213,27 @@ export default {
     },
     addData () {
       this.$refs.editForm.add()
+    },
+    vmMigrate () {
+      this.$refs.vmMigrate.migrateData()
+    },
+    stepAdd () {
+      this.$refs.stepFrom.add()
+    },
+    start () {
+      // this.loading = true
+      this.$refs.editTableItem.add()
+      // ajax request after empty completing
+      // setTimeout(() => {
+      //   this.loading = false
+      //   this.selectedRowKeys = []
+      // }, 1000)
+    },
+    onSelectChange (selectedRowKeys, selectedRows) {
+      console.log('selectedRowKeys changed: ', selectedRowKeys)
+      this.selectedRowKeys = selectedRowKeys
+      this.dataItem = selectedRows[0]
+      console.log('item', this.dataItem)
     }
   }
 }

@@ -29,7 +29,7 @@ const columns = [
   },
   {
     title: '版本',
-    dataIndex: '版本'
+    dataIndex: 'version'
   },
   {
     title: '所属VC',
@@ -49,6 +49,7 @@ export default {
       columns,
       rowSelection,
       data: [],
+      name: [],
       pagination: {
         current: 1,
         pageSize: 10,
@@ -92,22 +93,11 @@ export default {
         sortType: this.sorter.order
       }
       this.$http
-        .post('/Info/cluster', queryJson)
+        .post('/Info/vdswitch', queryJson)
         .then((resJson) => {
           this.loading = false
           this.data = resJson.result.datas
-          for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].drsEnabled === false) {
-              this.data[i].drsEnabled = '未开启'
-            } else if (this.data[i].drsEnabled === true) {
-              this.data[i].drsEnabled = '已开启'
-            }
-            if (this.data[i].haEnabled === true) {
-              this.data[i].haEnabled = '已开启'
-            } else if (this.data[i].haEnabled === false) {
-              this.data[i].haEnabled = '未开启'
-            }
-          }
+          this.data.map(item => this.name.push(item.name))
           const pagination = { ...this.pagination }
           pagination.total = resJson.result.records
           this.pagination = pagination
@@ -124,6 +114,6 @@ export default {
 }
 </script>
 
-<style lang='less' >
+<style lang='less'>
 
 </style>

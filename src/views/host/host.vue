@@ -10,6 +10,7 @@
       <rightButton
         type="danger"
         icon="delete"
+        :click="deleteData"
         code="role-delete">移除主机
       </rightButton>
       <rightButton
@@ -89,16 +90,18 @@ const columns = [
 
 ]
 const rowSelection = {
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record)
-    console.log(selectedRows)
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log('3', selectedRows)
+    console.log('4', selectedRowKeys)
   }
 }
+
 function toPercent (point) {
   let str = Number(point * 100).toFixed(2)
   str += '%'
   return str
 }
+
 export default {
   components: { rightButton, editForm },
   data () {
@@ -111,7 +114,7 @@ export default {
         current: 1,
         pageSize: 10,
         showSizeChanger: true,
-        showTotal: (total, range) => `记录：${total} 条`
+        showTotal: (total) => `记录：${total} 条`
       },
       filters: {},
       sorter: { field: 'Id', order: 'ASC' },
@@ -195,6 +198,25 @@ export default {
     },
     addData () {
       this.$refs.editForm.add()
+    },
+    deleteData () {
+      const me = this
+      this.$confirm({
+        title: '确认要删除选中的主机吗?',
+        onOk () {
+          me.loading = true
+          console.log(me.selectedRowKeys)
+          me.$http.post('/category/delete', me.selectedRowKeys).then(resJson => {
+            me.loading = false
+            me.$message.success('删除成功!')
+            me.getDataList()
+          })
+            .catch(err => {
+              me.$message.error('删除失败:' + err.response.data.message)
+              me.loading = false
+            })
+        }
+      })
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="logo" style="padding-left: 70px">
-    <router-link :to="{name:'dashboard'}">
+    <router-link :to="{name:'switch'}">
       <img src="../../assets/hylogo.png" alt="华云" style="margin-right: 6px">
       <h1 v-if="showTitle">{{ title }}</h1>
     </router-link>
